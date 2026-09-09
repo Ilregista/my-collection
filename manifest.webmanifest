@@ -1,0 +1,32 @@
+{
+  "name": "My Collection",
+  "short_name": "My Collection",
+  "description": "Archivio personale local-first per Blu-ray, videogiochi e fumetti.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#090b10",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "id": "./",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "categories": [
+    "entertainment",
+    "lifestyle"
+  ],
+  "orientation": "any"
+}
