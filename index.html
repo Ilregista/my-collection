@@ -269,6 +269,14 @@ body[data-mood="home"] { --accent: 190, 213, 255; --accent2: 160, 127, 255; }
 .favorite-toggle.active { background:rgba(255,212,95,.12); border-color:rgba(255,212,95,.34); }
 .compact-rating { color:#ffd45f; font-size:11px; letter-spacing:.02em; }
 
+
+.cover-loader { position:fixed; right:18px; bottom:calc(18px + env(safe-area-inset-bottom)); z-index:60; display:flex; align-items:center; gap:10px; max-width:min(360px,calc(100vw - 36px)); padding:10px 13px; border-radius:15px; background:rgba(12,15,22,.78); border:1px solid var(--stroke); box-shadow:0 18px 55px rgba(0,0,0,.35); backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%); color:var(--text); font-size:11px; transition:opacity .25s ease, transform .25s ease; }
+.cover-loader.hidden { display:none !important; }
+.cover-loader-dot { width:8px; height:8px; border-radius:50%; background:rgba(var(--accent),.95); box-shadow:0 0 0 0 rgba(var(--accent),.35); animation:coverPulse 1.25s ease-out infinite; flex:0 0 auto; }
+.cover-loader strong { display:block; font-size:11px; }
+.cover-loader small { display:block; margin-top:2px; color:var(--muted); }
+@keyframes coverPulse { 0%{box-shadow:0 0 0 0 rgba(var(--accent),.35)} 70%{box-shadow:0 0 0 8px rgba(var(--accent),0)} 100%{box-shadow:0 0 0 0 rgba(var(--accent),0)} }
+
 @media (max-width:920px) {
   .category-grid,.comic-grid { grid-template-columns:1fr; }
   .favorites-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
@@ -340,6 +348,123 @@ body[data-mood="home"] { --accent: 190, 213, 255; --accent2: 160, 127, 255; }
 }
 
   
+
+/* === My Collection v1.8.2 — robust dialog scrolling === */
+html:has(dialog[open]), body:has(dialog[open]) { overscroll-behavior:none; }
+
+/* The native dialog itself never becomes the scroll area. Safari/iOS is much
+   more reliable when a child owns the scrolling. */
+.add-dialog {
+  padding:0 !important;
+  overflow:hidden !important;
+  max-height:calc(100dvh - 24px) !important;
+  max-width:calc(100vw - 18px);
+  margin:auto;
+}
+.add-dialog > form,
+.add-dialog > .sync-sheet,
+.add-dialog > .scanner-sheet {
+  width:100%;
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  padding:22px;
+  touch-action:pan-y;
+}
+
+/* Keep the important actions reachable even on an iPhone with the keyboard up. */
+.add-dialog > form > .dialog-head {
+  position:sticky;
+  top:-22px;
+  z-index:20;
+  margin:-22px -22px 0;
+  padding:22px 22px 14px;
+  background:linear-gradient(180deg,rgba(13,15,21,.985) 76%,rgba(13,15,21,.90));
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%);
+}
+.add-dialog > form > .dialog-actions {
+  position:sticky;
+  bottom:-22px;
+  z-index:20;
+  margin:18px -22px -22px;
+  padding:14px 22px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(13,15,21,.99) 76%,rgba(13,15,21,.88));
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%);
+  border-top:1px solid var(--stroke-soft);
+}
+
+/* Search gets its own internal scroll area too. */
+.global-search-dialog {
+  max-height:calc(100dvh - 24px) !important;
+}
+.global-search-sheet {
+  max-height:calc(100dvh - 24px);
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  overflow:hidden;
+}
+.global-search-results {
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Detail sheet: one clear scroll owner, especially in standalone mode. */
+.detail-dialog { overflow:hidden; }
+.detail-sheet {
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+
+@media (max-width:620px) {
+  .add-dialog {
+    width:calc(100% - 10px) !important;
+    max-width:calc(100% - 10px);
+    max-height:calc(100dvh - 10px) !important;
+    border-radius:24px;
+  }
+  .add-dialog > form,
+  .add-dialog > .sync-sheet,
+  .add-dialog > .scanner-sheet {
+    max-height:calc(100dvh - 10px);
+    padding:16px 15px calc(16px + env(safe-area-inset-bottom));
+  }
+  .add-dialog > form > .dialog-head {
+    top:-16px;
+    margin:-16px -15px 0;
+    padding:16px 15px 12px;
+  }
+  .add-dialog > form > .dialog-actions {
+    bottom:calc(-16px - env(safe-area-inset-bottom));
+    margin:16px -15px calc(-16px - env(safe-area-inset-bottom));
+    padding:12px 15px calc(14px + env(safe-area-inset-bottom));
+    gap:7px;
+  }
+  .add-dialog > form > .dialog-actions .primary-btn,
+  .add-dialog > form > .dialog-actions .ghost-btn { min-height:42px; }
+  .dialog-head h2 { font-size:24px; }
+  .form-grid { margin-top:14px; gap:11px; }
+  .form-grid input,.form-grid select,.form-grid textarea,.cover-source-row input { min-height:44px; }
+  .detail-dialog { max-height:100dvh !important; }
+  .detail-sheet { max-height:100dvh; border-radius:26px 26px 0 0; }
+  .global-search-dialog { width:calc(100% - 10px); max-height:calc(100dvh - 10px) !important; }
+  .global-search-sheet { max-height:calc(100dvh - 10px); }
+  .sync-sheet .dialog-head { position:sticky; top:0; z-index:10; padding:4px 0 12px; background:rgba(13,15,21,.96); }
+  .lookup-inline { align-items:stretch; }
+  .lookup-inline .primary-btn { min-height:44px; }
+  .scanner-video { max-height:56dvh; object-fit:cover; }
+}
+
 /* === My Collection v1.1 additions === */
 .install-btn.hidden { display:none!important; }
 .backup-dot { width:7px; height:7px; border-radius:50%; background:#ffd45f; box-shadow:0 0 0 3px rgba(255,212,95,.12); margin-left:1px; }
@@ -542,6 +667,8 @@ body { background:
 
     <main id="app"></main>
   </div>
+
+  <div id="coverLoader" class="cover-loader hidden"><span class="cover-loader-dot"></span><div><strong id="coverLoaderTitle">Recupero copertine…</strong><small id="coverLoaderText">Preparazione</small></div></div>
 
   <dialog id="globalSearchDialog" class="global-search-dialog">
     <div class="global-search-sheet">
@@ -841,8 +968,8 @@ const integrationSettingsKey='myCollectionIntegrationSettingsV1';
 const autoBackupKey='myCollectionAutoBackupsV1';
 const syncMetaKey='myCollectionSyncMeta';
 const catalogImportKey='myCollectionExcelCatalog20260910V2';
-const coverLookupCacheKey='myCollectionCoverLookupCacheV1';
-const autoCoverRunKey='myCollectionAutoCoverRunV1';
+const coverLookupCacheKey='myCollectionCoverLookupCacheV2';
+const autoCoverRunKey='myCollectionAutoCoverRunV2';
 const demoItemIds=new Set(['br-blade-runner','br-dune','br-alien','g-re4','g-astro','c-batman','c-spiderman','c-watchmen']);
 const ASSET_DB_NAME='MyCollectionAssetsV1',ASSET_STORE='covers';
 const clone=obj=>JSON.parse(JSON.stringify(obj));
@@ -882,20 +1009,49 @@ function itemNeedsAutoCover(item){return item&&!coverUrl(item.cover);}
 function comicBaseTitle(title=''){return String(title||'').replace(/\s+[—-]\s*#?\d+\s*$/,'').replace(/\s+\((?:variant|facsimile)[^)]+\)$/i,'').trim();}
 function blurayQueries(item){const raw=String(item?.title||'').trim();const aliases=Array.isArray(item?.aliases)?item.aliases:[];const parts=[];if(raw.includes(' - '))parts.push(raw.split(' - ')[0].trim());if(raw.includes(' / '))parts.push(raw.split(' / ')[0].trim());if(raw.includes(': '))parts.push(raw.split(': ')[0].trim(), raw.replace(/^[^:]+:\s*/, '').trim());return uniqueValues([raw,...aliases,...parts]);}
 function comicQueries(item){const raw=String(item?.title||'').trim();const base=comicBaseTitle(raw);const creator=String(item?.creator||'').trim();const publisher=String(item?.publisher||'').trim();const lines=[raw,base,creator?`${raw} ${creator}`:'',creator?`${base} ${creator}`:'',publisher?`${base} ${publisher}`:''];if(item?.comicGroup==='dc')lines.push(`${base} DC`);if(item?.comicGroup==='marvel')lines.push(`${base} Marvel`);return uniqueValues(lines);}
-function betterCoverFromItunes(url=''){return String(url||'').replace(/100x100bb/i,'600x600bb').replace(/200x200bb/i,'600x600bb');}
+function betterCoverFromItunes(url=''){return String(url||'').replace(/100x100bb/i,'600x900bb').replace(/200x200bb/i,'600x900bb');}
 function betterGoogleBookCover(url=''){return String(url||'').replace('http://','https://').replace(/&zoom=\d+/,'&zoom=2').replace(/&edge=curl/,'');}
 function titleSimilarityScore(candidate='',query=''){const a=normalizeCoverQuery(candidate),b=normalizeCoverQuery(query);if(!a||!b)return 0;if(a===b)return 200;if(a.includes(b))return 140;if(b.includes(a))return 120;const aWords=new Set(a.split(' ')),bWords=b.split(' ');let common=0;for(const w of bWords)if(aWords.has(w))common++;return common*12-Math.abs(a.length-b.length)*0.1;}
-async function fetchJsonSafe(url){const res=await fetch(url,{mode:'cors'});if(!res.ok)throw new Error(`HTTP ${res.status}`);return res.json();}
-async function lookupBlurayCover(item){for(const query of blurayQueries(item)){try{const json=await fetchJsonSafe(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&country=it&limit=8`);const results=(json.results||[]).filter(x=>x.artworkUrl100);if(!results.length)continue;results.sort((a,b)=>titleSimilarityScore(b.trackName||b.collectionName||'',query)-titleSimilarityScore(a.trackName||a.collectionName||'',query));const best=results[0];const url=betterCoverFromItunes(best.artworkUrl100||'');if(url)return url;}catch{}}
-return '';
-}
-async function lookupComicCover(item){for(const query of comicQueries(item)){try{const api=`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=8&printType=books&langRestrict=it`;const json=await fetchJsonSafe(api);const books=(json.items||[]).filter(x=>x?.volumeInfo?.imageLinks?.thumbnail||x?.volumeInfo?.imageLinks?.smallThumbnail);if(!books.length)continue;books.sort((a,b)=>titleSimilarityScore((b.volumeInfo||{}).title||'',query)-titleSimilarityScore((a.volumeInfo||{}).title||'',query));const best=books[0].volumeInfo||{};const url=betterGoogleBookCover(best.imageLinks?.thumbnail||best.imageLinks?.smallThumbnail||'');if(url)return url;}catch{}}
-return '';
-}
+
+function jsonpRequest(url,timeout=10000){return new Promise((resolve,reject)=>{const callback='mc_jsonp_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2);const script=document.createElement('script');let done=false;const cleanup=()=>{if(done)return;done=true;clearTimeout(timer);try{delete window[callback];}catch{window[callback]=undefined;}script.remove();};window[callback]=payload=>{cleanup();resolve(payload);};script.async=true;script.onerror=()=>{cleanup();reject(new Error('Servizio copertine non raggiungibile'));};const join=url.includes('?')?'&':'?';script.src=`${url}${join}callback=${encodeURIComponent(callback)}`;const timer=setTimeout(()=>{cleanup();reject(new Error('Timeout recupero copertina'));},timeout);document.head.appendChild(script);});}
+async function lookupBlurayCover(item){const queries=blurayQueries(item).slice(0,2);let gotResponse=false;for(const query of queries){const url=`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=movie&entity=movie&country=it&limit=8`;const json=await jsonpRequest(url,12000);gotResponse=true;const results=(json.results||[]).filter(x=>x.artworkUrl100);if(!results.length)continue;results.sort((a,b)=>titleSimilarityScore(b.trackName||b.collectionName||'',query)-titleSimilarityScore(a.trackName||a.collectionName||'',query));const best=results[0];const cover=betterCoverFromItunes(best.artworkUrl100||'');if(cover)return cover;}return gotResponse?'':'';}
+async function lookupComicCover(item){const queries=comicQueries(item).slice(0,2);let gotResponse=false;for(const query of queries){const url=`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=8&printType=books&langRestrict=it`;const json=await jsonpRequest(url,12000);gotResponse=true;const books=(json.items||[]).filter(x=>x?.volumeInfo?.imageLinks?.thumbnail||x?.volumeInfo?.imageLinks?.smallThumbnail);if(!books.length)continue;books.sort((a,b)=>titleSimilarityScore((b.volumeInfo||{}).title||'',query)-titleSimilarityScore((a.volumeInfo||{}).title||'',query));const best=books[0].volumeInfo||{};const cover=betterGoogleBookCover(best.imageLinks?.thumbnail||best.imageLinks?.smallThumbnail||'');if(cover)return cover;}return gotResponse?'':'';}
 async function lookupImportedCover(category,item){return category==='bluray'?lookupBlurayCover(item):lookupComicCover(item);}
+function updateCoverLoader(current,total,found,title=''){const box=$('coverLoader'),t=$('coverLoaderTitle'),text=$('coverLoaderText');if(!box||!t||!text)return;box.classList.remove('hidden');t.textContent=`Copertine ${current}/${total}`;text.textContent=`${found} trovate${title?' · '+title:''}`;}
+function finishCoverLoader(found,misses){const box=$('coverLoader'),t=$('coverLoaderTitle'),text=$('coverLoaderText');if(!box)return;if(t)t.textContent='Copertine aggiornate';if(text)text.textContent=`${found} trovate · ${misses} non disponibili`;setTimeout(()=>box.classList.add('hidden'),4200);}
 function maybeRefreshOpenDetail(itemId,refreshList=false){if(detailDialog?.open&&detailItemId===itemId)renderDetail();if(refreshList)renderCurrentAfterDetail();}
-async function runAutoCoverHydration(){if(autoCoverHydrationRunning||!navigator.onLine)return;const queue=[];for(const category of ['bluray','comics'])for(const item of data[category]||[]){if(!isImportedItem(category,item)||!itemNeedsAutoCover(item))continue;queue.push({category,item});}if(!queue.length)return;autoCoverHydrationRunning=true;let found=0,misses=0,dirty=false;for(let i=0;i<queue.length;i++){const {category,item}=queue[i];const cacheId=`${category}::${normalizeCoverQuery(item.title)}::${normalizeCoverQuery(item.creator)}::${item.comicGroup||''}`;const cached=coverLookupCache[cacheId];if(cached==='!miss'){misses++;continue;}if(cached){item.cover=cached;found++;dirty=true;if(found%4===0)maybeRefreshOpenDetail(item.id,true);continue;}const url=await lookupImportedCover(category,item);coverLookupCache[cacheId]=url||'!miss';saveCoverLookupCache();if(url){item.cover=url;found++;dirty=true;maybeRefreshOpenDetail(item.id,found%4===0);if(found%5===0)saveData({skipSnapshot:true,skipSync:true});}else misses++;if(i<queue.length-1)await new Promise(r=>setTimeout(r,180));}
-autoCoverRun.lastFinishedAt=now();autoCoverRun.lastFound=found;autoCoverRun.lastMisses=misses;saveAutoCoverRun();if(dirty){saveData({skipSync:true});renderCurrentAfterDetail();setSyncMeta(`Copertine aggiornate automaticamente: ${found}`);}autoCoverHydrationRunning=false;}
+
+async function runAutoCoverHydration(){
+  if(autoCoverHydrationRunning||!navigator.onLine)return;
+  const queue=[];
+  for(const category of ['bluray','comics'])for(const item of data[category]||[]){if(isImportedItem(category,item)&&itemNeedsAutoCover(item))queue.push({category,item});}
+  if(!queue.length)return;
+  autoCoverHydrationRunning=true;
+  let found=0,misses=0,dirty=false;
+  updateCoverLoader(0,queue.length,0,'Avvio…');
+  for(let i=0;i<queue.length;i++){
+    const {category,item}=queue[i];
+    updateCoverLoader(i+1,queue.length,found,item.title);
+    const cacheId=`${category}::${normalizeCoverQuery(item.title)}::${normalizeCoverQuery(item.creator)}::${item.comicGroup||''}`;
+    const cached=coverLookupCache[cacheId];
+    if(cached==='!miss'){misses++;continue;}
+    if(cached){item.cover=cached;found++;dirty=true;if(found%4===0)renderCurrentAfterDetail();continue;}
+    try{
+      const url=await lookupImportedCover(category,item);
+      if(url){coverLookupCache[cacheId]=url;item.cover=url;found++;dirty=true;if(found%4===0)renderCurrentAfterDetail();if(found%5===0)saveData({skipSnapshot:true,skipSync:true});}
+      else{coverLookupCache[cacheId]='!miss';misses++;}
+      saveCoverLookupCache();
+    }catch(err){
+      // Non memorizziamo gli errori di rete/rate limit come "nessuna cover": verranno ritentati.
+    }
+    const delay=category==='bluray'?3150:420;
+    if(i<queue.length-1)await new Promise(r=>setTimeout(r,delay));
+  }
+  autoCoverRun.lastFinishedAt=now();autoCoverRun.lastFound=found;autoCoverRun.lastMisses=misses;saveAutoCoverRun();
+  if(dirty){saveData({skipSync:true});renderCurrentAfterDetail();setSyncMeta(`Copertine aggiornate automaticamente: ${found}`);}
+  finishCoverLoader(found,misses);
+  autoCoverHydrationRunning=false;
+}
 function startAutoCoverHydration(){if(autoCoverHydrationRunning)return;setTimeout(()=>runAutoCoverHydration().catch(()=>{}),120);}
 
 
@@ -1004,7 +1160,7 @@ function historyMarkup(){const rows=recentPurchases();if(!rows.length)return'';r
 
 function setMood(mood){document.body.dataset.mood=mood||'home';}
 function render(){if(state.screen==='home')renderHome();else if(state.screen==='comicHub')renderComicHub();else renderLibrary();updateBackupReminder();}
-function renderHome(){setMood('home');state.category=null;state.comicGroup=null;app.innerHTML=`<section class="hero"><p class="eyebrow">Archivio personale · v1.8</p><h1>My Collection</h1><p>Blu-ray, videogiochi e fumetti: collezione, wishlist, valutazioni, Four Favorites, spese e statistiche in un archivio local-first.</p></section><section class="category-grid">${Object.entries(CATEGORIES).map(([k,c])=>{const t=categoryTotals(k);return`<article class="category-card" data-category="${k}" tabindex="0"><div class="category-icon">${c.icon}</div><div><p class="eyebrow">${t.items} in collezione · ${t.wishlist} wishlist</p><h2>${c.label}</h2></div><div class="meta"><span>Costo acquisti</span><span class="category-cost">${euro(t.spent)}</span></div></article>`;}).join('')}</section><section class="summary-strip glass-panel"><div><p class="eyebrow">Costo totale registrato</p><strong>${euro(allSpent())}</strong></div><div class="muted">Somma dei prezzi di acquisto della collezione.</div></section>${dashboardMarkup()}<section class="analytics-panel glass-panel"><div class="analytics-head"><div><p class="eyebrow">Statistiche acquisti</p><h2>Quanto hai speso, anno per anno</h2><p>Il grafico usa l’anno di acquisto delle singole edizioni; sotto trovi anche la ripartizione Blu-ray / Giochi / Fumetti per ogni anno.</p></div><div class="segmented analytics-filter"><button data-analytics-category="all" class="${state.analyticsCategory==='all'?'active':''}">Totale</button><button data-analytics-category="bluray" class="${state.analyticsCategory==='bluray'?'active':''}">Blu-ray</button><button data-analytics-category="games" class="${state.analyticsCategory==='games'?'active':''}">Giochi</button><button data-analytics-category="comics" class="${state.analyticsCategory==='comics'?'active':''}">Fumetti</button></div></div><div id="spendingChartArea">${spendingChartMarkup()}${yearCategoryTableMarkup()}</div></section>${historyMarkup()}`;
+function renderHome(){setMood('home');state.category=null;state.comicGroup=null;app.innerHTML=`<section class="hero"><p class="eyebrow">Archivio personale · v1.8.2</p><h1>My Collection</h1><p>Blu-ray, videogiochi e fumetti: collezione, wishlist, valutazioni, Four Favorites, spese e statistiche in un archivio local-first.</p></section><section class="category-grid">${Object.entries(CATEGORIES).map(([k,c])=>{const t=categoryTotals(k);return`<article class="category-card" data-category="${k}" tabindex="0"><div class="category-icon">${c.icon}</div><div><p class="eyebrow">${t.items} in collezione · ${t.wishlist} wishlist</p><h2>${c.label}</h2></div><div class="meta"><span>Costo acquisti</span><span class="category-cost">${euro(t.spent)}</span></div></article>`;}).join('')}</section><section class="summary-strip glass-panel"><div><p class="eyebrow">Costo totale registrato</p><strong>${euro(allSpent())}</strong></div><div class="muted">Somma dei prezzi di acquisto della collezione.</div></section>${dashboardMarkup()}<section class="analytics-panel glass-panel"><div class="analytics-head"><div><p class="eyebrow">Statistiche acquisti</p><h2>Quanto hai speso, anno per anno</h2><p>Il grafico usa l’anno di acquisto delle singole edizioni; sotto trovi anche la ripartizione Blu-ray / Giochi / Fumetti per ogni anno.</p></div><div class="segmented analytics-filter"><button data-analytics-category="all" class="${state.analyticsCategory==='all'?'active':''}">Totale</button><button data-analytics-category="bluray" class="${state.analyticsCategory==='bluray'?'active':''}">Blu-ray</button><button data-analytics-category="games" class="${state.analyticsCategory==='games'?'active':''}">Giochi</button><button data-analytics-category="comics" class="${state.analyticsCategory==='comics'?'active':''}">Fumetti</button></div></div><div id="spendingChartArea">${spendingChartMarkup()}${yearCategoryTableMarkup()}</div></section>${historyMarkup()}`;
  document.querySelectorAll('.category-card').forEach(card=>{const go=()=>openCategory(card.dataset.category);card.onclick=go;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')go();};});document.querySelectorAll('[data-analytics-category]').forEach(btn=>btn.onclick=()=>{state.analyticsCategory=btn.dataset.analyticsCategory;const area=$('spendingChartArea');if(area)area.innerHTML=spendingChartMarkup()+yearCategoryTableMarkup();document.querySelectorAll('[data-analytics-category]').forEach(b=>b.classList.toggle('active',b.dataset.analyticsCategory===state.analyticsCategory));});document.querySelectorAll('[data-history-item]').forEach(row=>row.onclick=()=>{state.category=row.dataset.historyCategory;state.screen='library';state.comicGroup=state.category==='comics'?findItemGlobal(row.dataset.historyItem)?.item.comicGroup:null;render();openDetail(row.dataset.historyItem);});}
 function openCategory(category){state={...state,category,comicGroup:null,tab:'collection',query:'',randomPick:null,filters:{ratingMin:'0',purchaseYear:'',consumption:'all',mediaType:'all',minPrice:'',maxPrice:'',sort:'title'}};state.screen=category==='comics'?'comicHub':'library';render();}
 function renderComicHub(){setMood('comics');state.category='comics';app.innerHTML=`<section class="comic-hub-head"><p class="eyebrow"><button id="backHome" class="ghost-btn" style="padding:6px 9px">← Home</button></p><h1>Fumetti</h1><p>DC, Marvel e Altro restano archivi separati, ma condividono valutazioni, Four Favorites e statistiche.</p></section>${favoriteSectionMarkup('comics')}<section class="comic-grid">${Object.entries(COMIC_GROUPS).map(([k,g])=>{const t=categoryTotals('comics',k);return`<article class="comic-card" data-group="${k}" tabindex="0"><div class="comic-logo ${k}">${COMIC_LOGOS[k]}</div><div><p class="eyebrow">${t.items} in collezione · ${t.wishlist} wishlist</p><h2>${g.label}</h2><p>Costo acquisti: <strong>${euro(t.spent)}</strong></p></div></article>`;}).join('')}</section>`;$('backHome').onclick=()=>{state.screen='home';render();};bindFavoriteCards(app);document.querySelectorAll('.comic-card').forEach(card=>{const go=()=>{state={...state,screen:'library',category:'comics',comicGroup:card.dataset.group,tab:'collection',query:'',randomPick:null};render();};card.onclick=go;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')go();};});}
@@ -1066,7 +1222,7 @@ $('addCoverFileButton').onclick=()=>$('addCoverFile').click();$('editCoverFileBu
 // Backup + sync
 function blobToDataUrl(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(blob);});}
 function dataUrlToBlob(dataUrl){const[meta,body]=String(dataUrl).split(','),mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/octet-stream',bytes=atob(body||''),arr=new Uint8Array(bytes.length);for(let i=0;i<bytes.length;i++)arr[i]=bytes.charCodeAt(i);return new Blob([arr],{type:mime});}
-async function buildBackup(){const refs=new Set();Object.values(data).flat().forEach(i=>{const id=localCoverId(i.cover);if(id)refs.add(id);});const covers={};for(const id of refs){try{const blob=await getCoverBlob(id);if(blob)covers[id]=await blobToDataUrl(blob);}catch{}}return{schema:'my-collection-backup',version:3,appVersion:'1.8-covers-favorites',exportedAt:new Date().toISOString(),data:clone(data),covers};}
+async function buildBackup(){const refs=new Set();Object.values(data).flat().forEach(i=>{const id=localCoverId(i.cover);if(id)refs.add(id);});const covers={};for(const id of refs){try{const blob=await getCoverBlob(id);if(blob)covers[id]=await blobToDataUrl(blob);}catch{}}return{schema:'my-collection-backup',version:3,appVersion:'1.8.2-modal-fix',exportedAt:new Date().toISOString(),data:clone(data),covers};}
 function backupFilename(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`My-Collection-${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}.mycollection`;}
 function backupFileFromPayload(p){return new File([JSON.stringify(p)],backupFilename(),{type:'application/json'});}
 function downloadFile(file){const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1200);}
